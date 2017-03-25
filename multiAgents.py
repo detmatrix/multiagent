@@ -175,21 +175,40 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        num_agent = gameState.getNumAgents()
-        num_ghost = num_agent - 1
-        actions = gameState.getLegalActions(0)
-
-        def minimax_value(currentState, action, agent_left):
-            if agent_left == 0:
+        def minimax_value(lastState, action, lastAgentIndex, depth_left):
+            currentState = lastState.generateSuccessor(lastAgentIndex, action)
+            if depth_left == 0 or currentState.isWin() or currentState.isLose():
                 return self.evaluationFunction(currentState)
             else:
-                agentIndex = num_ghost - agent_left
-                agent_left -= 1
+                num_agent = currentState.getNumAgents()
+                agentIndex = lastAgentIndex + 1
+                if agentIndex >= num_agent:
+                    agentIndex = 0
+                    depth_left -= 1
+                #     return minimax_value()
+                # else:
                 actions = currentState.getLegalActions(agentIndex)
-                return min(actions, key=lambda x: minimax_value(currentState, x, agent_left))
+                if agentIndex == 0:
+                    retVal = max(map(lambda x: minimax_value(currentState, x, agentIndex, depth_left), actions))
+                else:
+                    retVal = min(map(lambda x: minimax_value(currentState, x, agentIndex, depth_left), actions))
+                agentIndex += 1
+                return retVal
 
-            return 0
-        return max(actions, key=lambda x: minimax_value(gameState, x, num_ghost-1))
+                # agent_left -= 1
+                # actions = currentState.getLegalActions(agentIndex)
+                # if status == 'max':
+                #     return max(map(lambda x: minimax_value(currentState, x, agent_left), actions))
+                # else:
+                #     return min(map(lambda x: minimax_value(currentState, x, agent_left), actions))
+
+        # for i in range(0, self.depth):
+        #     num_agent = gameState.getNumAgents()
+        #     num_ghost = num_agent - 1
+        actions = gameState.getLegalActions(0)
+        #     for agentIndex in range(0, num_agent):
+
+        return max(actions, key=lambda x: minimax_value(gameState, x, 0, self.depth))
 
 
 
