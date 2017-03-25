@@ -185,7 +185,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 if agentIndex >= num_agent:
                     agentIndex = 0
                     depth_left -= 1
-                #     return minimax_value()
+                    if depth_left == 0:
+                        return self.evaluationFunction(currentState)
                 # else:
                 actions = currentState.getLegalActions(agentIndex)
                 if agentIndex == 0:
