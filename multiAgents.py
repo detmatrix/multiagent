@@ -175,6 +175,23 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
+        num_agent = gameState.getNumAgents()
+        num_ghost = num_agent - 1
+        actions = gameState.getLegalActions(0)
+
+        def minimax_value(currentState, action, agent_left):
+            if agent_left == 0:
+                return self.evaluationFunction(currentState)
+            else:
+                agentIndex = num_ghost - agent_left
+                agent_left -= 1
+                actions = currentState.getLegalActions(agentIndex)
+                return min(actions, key=lambda x: minimax_value(currentState, x, agent_left))
+
+            return 0
+        return max(actions, key=lambda x: minimax_value(gameState, x, num_ghost-1))
+
+
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
