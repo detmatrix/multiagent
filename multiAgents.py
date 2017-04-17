@@ -196,19 +196,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 agentIndex += 1
                 return retVal
 
-                # agent_left -= 1
-                # actions = currentState.getLegalActions(agentIndex)
-                # if status == 'max':
-                #     return max(map(lambda x: minimax_value(currentState, x, agent_left), actions))
-                # else:
-                #     return min(map(lambda x: minimax_value(currentState, x, agent_left), actions))
-
-        # for i in range(0, self.depth):
-        #     num_agent = gameState.getNumAgents()
-        #     num_ghost = num_agent - 1
         actions = gameState.getLegalActions(0)
-        #     for agentIndex in range(0, num_agent):
-
         return max(actions, key=lambda x: minimax_value(gameState, x, 0, self.depth))
 
 
@@ -224,7 +212,53 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def minimax_value(alpha, Beta, lastState, action, lastAgentIndex, depth_left):
+            currentState = lastState.generateSuccessor(lastAgentIndex, action)
+            if depth_left == 0 or currentState.isWin() or currentState.isLose():
+                return self.evaluationFunction(currentState)
+            else:
+                num_agent = currentState.getNumAgents()
+                agentIndex = lastAgentIndex + 1
+                if agentIndex >= num_agent:
+                    agentIndex = 0
+                    depth_left -= 1
+                    if depth_left == 0:
+                        return self.evaluationFunction(currentState)
+                # else:
+                actions = currentState.getLegalActions(agentIndex)
+                inf = 1000000
+                if agentIndex == 0:
+                    v = -inf
+                    for action in actions:
+                        v = max(v, minimax_value(alpha, Beta, currentState, action, agentIndex, depth_left))
+                        if v > Beta:
+                            break
+                        alpha = max(alpha, v)
+                else:
+                    v = inf
+                    for action in actions:
+                        v = min(v, minimax_value(alpha, Beta, currentState, action, agentIndex, depth_left))
+                        if v < alpha:
+                            break
+                        Beta = min(Beta, v)
+                retVal = v
+                agentIndex += 1
+                return retVal
+
+        inf = 1000000
+        actions = gameState.getLegalActions(0)
+        alpha = v = -inf
+        Beta = +inf
+        bestAction = Directions.STOP
+        for action in actions:
+            retVal = minimax_value(alpha, Beta, gameState, action, 0, self.depth)
+            if retVal > v:
+                v = retVal
+                bestAction = action
+            if v > Beta:
+                break
+            alpha = max(alpha, v)
+        return bestAction
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
