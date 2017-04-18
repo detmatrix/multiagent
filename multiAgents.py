@@ -273,7 +273,31 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def expectimax_value(lastState, action, lastAgentIndex, depth_left):
+            currentState = lastState.generateSuccessor(lastAgentIndex, action)
+            if depth_left == 0 or currentState.isWin() or currentState.isLose():
+                return self.evaluationFunction(currentState)
+            else:
+                num_agent = currentState.getNumAgents()
+                agentIndex = lastAgentIndex + 1
+                if agentIndex >= num_agent:
+                    agentIndex = 0
+                    depth_left -= 1
+                    if depth_left == 0:
+                        return self.evaluationFunction(currentState)
+                # else:
+                actions = currentState.getLegalActions(agentIndex)
+                if agentIndex == 0:
+                    retVal = max(map(lambda x: expectimax_value(currentState, x, agentIndex, depth_left), actions))
+                else:
+                    retVal = sum(map(lambda x: expectimax_value(currentState, x, agentIndex, depth_left), actions))
+                    retVal = retVal * 1.0 / len(actions)
+                agentIndex += 1
+                return retVal
+
+        actions = gameState.getLegalActions(0)
+        return max(actions, key=lambda x: expectimax_value(gameState, x, 0, self.depth))
+
 
 def betterEvaluationFunction(currentGameState):
     """
@@ -283,8 +307,13 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
+    score = currentGameState.getScore()
+    foodList = currentGameState.getFood().asList();
+    food_num = len(foodList)
+    pos = currentGameState.getPacmanPosition()
+    ghostPos = map(lambda x: x.getPosition(), currentGameState.getGhostStates())
+    ghost_dist = min(map(lambda x: util.manhattanDistance(pos, x), ghostPos))
+    return score * 10 - food_num * 5 - ghost_dist
 # Abbreviation
 better = betterEvaluationFunction
 
